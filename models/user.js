@@ -1,11 +1,12 @@
 class User {
-    constructor(id, firstName, lasName, age,
+    constructor(id, firstName, lastName, age,
         phoneNumber) {
-        this.id = id,
-            this.firstName = firstName,
-            this.lasName = lasName,
-            this.age = age,
-            this.phoneNumber = phoneNumber
+        this.id = id;
+        this.firstName = firstName;
+        this.lasName = lastName;
+        this.username = username;
+        this.age = age;
+        this.phoneNumber = phoneNumber;
 
 
 

@@ -2,13 +2,16 @@
 
 const firebase = require('../db');
 const User = require('../models/user');
-const firestore = firebase.firestore();
+const firestore = firebase.database();
 
 
 const addUser = async (req, res) => {
     try {
         const data = req.body;
-        await firebase.collection('users').doc().set(data);
+        let username = req.body.username;
+        let id =
+            console.log(data)
+        await firebase.database().ref('users/' + username).set(data);
         res.send("Record saved Successfully");
     }
     catch (error) {
