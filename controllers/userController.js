@@ -71,8 +71,27 @@ const getUsers = (req, res) => {
     }
 }
 
+
+const editUser = async (req, res) => {
+
+    try {
+        let result;
+
+        await dbRef.child("users").child("-M_yhOOqnX7LPsZOlOo_").update({ picture: req.body.picture })
+
+        res.json({
+            success: true,
+            message: "Record updated Successfully",
+        });
+
+    } catch (error) {
+        res.status(400).send(error.message)
+    }
+}
+
 module.exports = {
     addUser,
     getUser,
-    getUsers
+    getUsers,
+    editUser
 }

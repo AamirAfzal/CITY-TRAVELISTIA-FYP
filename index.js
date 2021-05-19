@@ -24,7 +24,6 @@ const dbRef = firebase.database().ref();
 
 app.post("/signin", (req, res) => {
     try {
-        let doesExist
         let userpass
         let myuser
         //console.log(req.body.email)
@@ -42,10 +41,13 @@ app.post("/signin", (req, res) => {
                 })
             }
             else {
-                myuser = snapshot2.val()
                 let userids = Object.keys(snapshot2.val())
+                dbRef.child("users").child(userids[0]).get().then((snapshot3) => {
+                    myuser = snapshot3.val()
+                })
                 dbRef.child("users").child(userids[0]).child("password").get().then((snapshot) => {
                     userpass = snapshot.val()
+
                     console.log(userpass)
                     console.log(user.password)
                     if (bcrypt.compareSync(user.password, userpass)) {
@@ -97,6 +99,7 @@ app.post("/signup", async (req, res) => {
             firstName: req.body.firstName,
             lastName: req.body.lastName,
             age: req.body.age,
+            phonenumber: req.body.phonenumber
         };
         console.log(credentials.email)
         dbRef.child("users").orderByChild('email').equalTo(credentials.email).on("value", function (snapshot2) {
