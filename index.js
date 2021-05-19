@@ -5,11 +5,181 @@ const bodyParser = require('body-parser');
 const config = require('./config');
 const userRoutes = require('./routes/user')
 
+var bcrypt = require('bcrypt')
+var saltRouds = 10
+const jwt = require("jsonwebtoken");
+
 const app = express();
+
 
 app.use(express.json());
 app.use(cors());
 app.use(bodyParser.json());
+
+const firebase = require('./db');
+const userRef = firebase.database().ref('users/')
+const dbRef = firebase.database().ref();
+
+
+
+app.post("/signin", (req, res) => {
+    try {
+        let doesExist
+        let userpass
+        let myuser
+        //console.log(req.body.email)
+        var user = {};
+        user.email = req.body.email;
+        user.password = req.body.password;
+        console.log("ENTERED EMAIL: " + user.email)
+        //user.password = req.body.password;
+
+
+        dbRef.child("users").orderByChild('email').equalTo(user.email).on("value", function (snapshot2) {
+            if (!snapshot2.exists()) {
+                res.status(500).send({
+                    message: "User Does Not Exists..."
+                })
+            }
+            else {
+                myuser = snapshot2.val()
+                let userids = Object.keys(snapshot2.val())
+                dbRef.child("users").child(userids[0]).child("password").get().then((snapshot) => {
+                    userpass = snapshot.val()
+                    console.log(userpass)
+                    console.log(user.password)
+                    if (bcrypt.compareSync(user.password, userpass)) {
+                        console.log(bcrypt.compareSync(user.password, userpass))
+                        let token = jwt.sign({ user: user }, 'abcdefghijklmnopqrstuvwxyz');
+                        res.status(200).json({
+                            token,
+                            user: myuser
+
+                        })
+
+                    } else {
+                        res.send("User Unauthorized Access");
+                    }
+                })
+
+            }
+        })
+    }
+    catch (ex) {
+        res.status(500).send({
+            success: false,
+            message: ex.toString()
+        })
+    }
+});
+
+
+
+app.post("/signup", async (req, res) => {
+    try {
+        let firebaseuser
+        // Validate request
+        if (!req.body.email) {
+            res.status(400).send({
+                message: "Please Enter Username"
+            });
+            return;
+        }
+        else if (!req.body.password) {
+            res.status(400).send({
+                message: "Please Enter Password"
+            })
+        }
+        // Create a Credentials Object
+        const credentials = {
+            email: req.body.email,
+            password: req.body.password,
+            firstName: req.body.firstName,
+            lastName: req.body.lastName,
+            age: req.body.age,
+        };
+        console.log(credentials.email)
+        dbRef.child("users").orderByChild('email').equalTo(credentials.email).on("value", function (snapshot2) {
+            if (snapshot2.exists()) {
+                firebaseuser = true
+            }
+            else {
+                firebaseuser = false
+            }
+        })
+        console.log("Undefined? " + firebaseuser)
+        if (firebaseuser) {
+            res.status(500).send({
+                message: "User already exists..."
+            })
+        }
+        else {
+            //console.log(snapshot2.val())
+
+            let hash = await bcrypt.hash(credentials.password, saltRouds)
+
+            credentials.password = hash
+
+            //const data = req.body;
+            let mGroupId = dbRef.child("users").push().getKey();
+            //console.log(newid)
+            credentials.id = mGroupId
+
+
+            let admin = await firebase.database().ref('users/' + mGroupId).set(credentials);
+
+
+
+
+            //let admin = await db.admin.create(credentials);
+            //console.log(admin);
+
+            let token = jwt.sign({ user: admin }, 'abcdefghijklmnopqrstuvwxyz');
+            res.json({
+                success: true,
+                token
+            });
+
+        }
+
+    }
+    catch (ex) {
+        res.status(500).send({
+            success: false,
+            message: ex.toString()
+        })
+    }
+});
+
+const authenticateMiddleware = (req, res, next) => {
+    const bearerHeader = req.headers['authorization'];
+    //Check if bearer is undefined 
+
+    if (typeof bearerHeader !== 'undefined') {
+        //Split at the space
+        const bearer = bearerHeader.split(' ');
+        //Get token from array
+        const bearerToken = bearer[1];
+        //Set the token
+        req.token = bearerToken;
+        //Next middlware
+        jwt.verify(req.token, "abcdefghijklmnopqrstuvwxyz", (err, authData) => {
+            if (err) {
+                console.log(err);
+                res.sendStatus(403);
+            } else {
+                next();
+            }
+        });
+    }
+    else {
+        res.sendStatus(403);
+    }
+
+}
+
+
+
 app.use('/user', userRoutes.routes)
 
 app.listen(config.port, () => console.log(

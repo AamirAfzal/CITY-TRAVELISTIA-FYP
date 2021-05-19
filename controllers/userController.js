@@ -9,7 +9,7 @@ const addUser = async (req, res) => {
     try {
         const data = req.body;
         let mGroupId = dbRef.child("users").push().getKey();
-        console.log(newid)
+        //console.log(newid)
         data.id = mGroupId
 
         console.log(data)
@@ -28,8 +28,15 @@ const addUser = async (req, res) => {
 const getUser = (req, res) => {
     try {
         dbRef.child("users").get().then((snapshot) => {
+            let userids = Object.keys(snapshot.val())
+            for (let i = 0; i < userids.length; i = i + 1) {
+                dbRef.child("users").child(userids[i]).child("email").get().then((snapshot2) => {
+                    console.log(snapshot2.val())
+                })
+            }
             if (snapshot.exists()) {
-                let userids = Object.keys(snapshot.val())
+                // let userids = Object.keys(snapshot.val())
+                console.log(userids.length)
                 res.json({
                     success: true,
                     data: (snapshot.val()),
