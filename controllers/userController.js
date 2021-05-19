@@ -4,6 +4,11 @@ const firebase = require('../db');
 const User = require('../models/user');
 const userRef = firebase.database().ref('users/')
 const dbRef = firebase.database().ref();
+var bcrypt = require('bcrypt')
+var saltRouds = 10
+
+const { upload } = require('../common/multer');
+const e = require('express');
 
 const addUser = async (req, res) => {
     try {
@@ -75,9 +80,37 @@ const getUsers = (req, res) => {
 const editUser = async (req, res) => {
 
     try {
-        let result;
+        let password = req.body.password
+        let hash = await bcrypt.hash(password, saltRouds)
 
-        await dbRef.child("users").child("-M_yhOOqnX7LPsZOlOo_").update({ picture: req.body.picture })
+
+        password = hash
+
+
+        if (req.file) {
+            let picture
+            req.body.picture = req.file.filename
+            picture = req.file.filename
+            console.log("IF")
+            await dbRef.child("users").child(req.params.id).update({
+                firstName: req.body.firstName,
+                lastName: req.body.lastName,
+                age: req.body.age,
+                password: password,
+                picture: picture
+
+            })
+        }
+        else {
+            console.log("Else")
+            await dbRef.child("users").child(req.params.id).update({
+                firstName: req.body.firstName,
+                lastName: req.body.lastName,
+                age: req.body.age,
+                password: password
+            })
+        }
+
 
         res.json({
             success: true,
