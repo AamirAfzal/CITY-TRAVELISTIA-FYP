@@ -4,6 +4,9 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const config = require('./config');
 const userRoutes = require('./routes/user')
+const typeRoutes = require('./routes/type')
+const bookingRoute = require('./routes/booking')
+const placeRoute = require('./routes/places')
 
 var bcrypt = require('bcrypt')
 var saltRouds = 10
@@ -17,6 +20,7 @@ app.use(cors());
 app.use(bodyParser.json());
 
 const firebase = require('./db');
+const booking = require('./routes/booking');
 const userRef = firebase.database().ref('users/')
 const dbRef = firebase.database().ref();
 
@@ -184,6 +188,9 @@ const authenticateMiddleware = (req, res, next) => {
 
 
 app.use('/user', userRoutes.routes)
+app.use('/type', typeRoutes.routes)
+app.use('/booking', bookingRoute.routes)
+app.use('/place', placeRoute.routes)
 
 app.listen(config.port, () => console.log(
     "App is listening on url http://localhost:" + config.port
