@@ -194,6 +194,7 @@ app.use('/user', userRoutes.routes)
 app.use('/type', typeRoutes.routes)
 app.use('/booking', bookingRoute.routes)
 app.use('/place', placeRoute.routes)
+app.use('/rnr', rnrRoute.routes)
 
 app.listen(config.port, () => console.log(
     "App is listening on url http://localhost:" + config.port
