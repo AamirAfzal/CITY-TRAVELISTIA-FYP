@@ -93,7 +93,7 @@ const getUserBooking = async (req, res) => {
         var obj = {}
         var arr = []
         dbRef.child("booking").orderByChild('user_id')
-            .equalTo('-Ma-PIR9GWRRSm233FpC').once('value', async function (snapshot) {
+            .equalTo(req.params.id).once('value', async function (snapshot) {
 
                 if (snapshot.exists()) {
                     var user_id = snapshot.val();
@@ -125,7 +125,7 @@ const getUserBooking = async (req, res) => {
                     //console.log(snapshot.val())
 
                     await dbRef.child("users").orderByChild('id')
-                        .equalTo('-Ma-PIR9GWRRSm233FpC').once('value', function (snapshot2) {
+                        .equalTo(req.params.id).once('value', function (snapshot2) {
 
                             if (snapshot2.exists) {
                                 //console.log("User Details")
