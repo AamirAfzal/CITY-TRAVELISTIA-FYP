@@ -7,6 +7,7 @@ const userRoutes = require('./routes/user')
 const typeRoutes = require('./routes/type')
 const bookingRoute = require('./routes/booking')
 const placeRoute = require('./routes/places')
+const rnrRoute = require('./routes/rnr')
 
 var bcrypt = require('bcrypt')
 var saltRouds = 10
@@ -48,10 +49,10 @@ app.post("/signin", (req, res) => {
             }
             else {
                 let userids = Object.keys(snapshot2.val())
-               await dbRef.child("users").child(userids[0]).get().then((snapshot3) => {
+                await dbRef.child("users").child(userids[0]).get().then((snapshot3) => {
                     myuser = snapshot3.val()
                 })
-               dbRef.child("users").child(userids[0]).child("password").get().then((snapshot) => {
+                dbRef.child("users").child(userids[0]).child("password").get().then((snapshot) => {
                     userpass = snapshot.val()
 
                     console.log(userpass)
