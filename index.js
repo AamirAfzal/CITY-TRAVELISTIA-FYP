@@ -35,21 +35,23 @@ app.post("/signin", (req, res) => {
         user.email = req.body.email;
         user.password = req.body.password;
         console.log("ENTERED EMAIL: " + user.email)
-        //user.password = req.body.password;
+        console.log("ENTERED PASSWORD: " + user.password)
+
+        // user.password = req.body.password;
 
 
-        dbRef.child("users").orderByChild('email').equalTo(user.email).on("value", function (snapshot2) {
+        dbRef.child("users").orderByChild('email').equalTo(user.email).on("value", async function (snapshot2) {
             if (!snapshot2.exists()) {
-                res.status(500).send({
+                res.status(500).json({
                     message: "User Does Not Exists..."
                 })
             }
             else {
                 let userids = Object.keys(snapshot2.val())
-                dbRef.child("users").child(userids[0]).get().then((snapshot3) => {
+               await dbRef.child("users").child(userids[0]).get().then((snapshot3) => {
                     myuser = snapshot3.val()
                 })
-                dbRef.child("users").child(userids[0]).child("password").get().then((snapshot) => {
+               dbRef.child("users").child(userids[0]).child("password").get().then((snapshot) => {
                     userpass = snapshot.val()
 
                     console.log(userpass)
@@ -64,7 +66,7 @@ app.post("/signin", (req, res) => {
                         })
 
                     } else {
-                        res.send("User Unauthorized Access");
+                        res.json("User Unauthorized Access");
                     }
                 })
 
@@ -72,7 +74,7 @@ app.post("/signin", (req, res) => {
         })
     }
     catch (ex) {
-        res.status(500).send({
+        res.status(500).json({
             success: false,
             message: ex.toString()
         })
@@ -86,13 +88,13 @@ app.post("/signup", async (req, res) => {
         let firebaseuser
         // Validate request
         if (!req.body.email) {
-            res.status(400).send({
+            res.status(400).json({
                 message: "Please Enter Username"
             });
             return;
         }
         else if (!req.body.password) {
-            res.status(400).send({
+            res.status(400).json({
                 message: "Please Enter Password"
             })
         }
@@ -116,7 +118,7 @@ app.post("/signup", async (req, res) => {
         })
         console.log("Undefined? " + firebaseuser)
         if (firebaseuser) {
-            res.status(500).send({
+            res.status(500).json({
                 message: "User already exists..."
             })
         }

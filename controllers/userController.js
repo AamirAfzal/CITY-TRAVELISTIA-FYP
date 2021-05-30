@@ -80,11 +80,11 @@ const getUsers = (req, res) => {
 const editUser = async (req, res) => {
 
     try {
-        let password = req.body.password
-        let hash = await bcrypt.hash(password, saltRouds)
+        // let password = req.body.password
+        // let hash = await bcrypt.hash(password, saltRouds)
 
 
-        password = hash
+        // password = hash
 
 
         if (req.file) {
@@ -95,8 +95,8 @@ const editUser = async (req, res) => {
                 firstName: req.body.firstName,
                 lastName: req.body.lastName,
                 age: req.body.age,
-                password: password,
-                picture: picture
+                // password: password,
+                // picture: picture
 
             })
         }
@@ -105,7 +105,7 @@ const editUser = async (req, res) => {
                 firstName: req.body.firstName,
                 lastName: req.body.lastName,
                 age: req.body.age,
-                password: password
+                // password: password
             })
         }
 
